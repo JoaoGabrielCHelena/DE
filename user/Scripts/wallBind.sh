@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Path to the original cycleWall.sh script
 SCRIPT_PATH="$HOME/Scripts/wallLoop.sh"
 
 # Define the list of items and their prefixes

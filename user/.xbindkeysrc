@@ -84,7 +84,7 @@
 "pactl set-sink-volume @DEFAULT_SINK@ -5% && ~/Scripts/volBind.sh"
   XF86AudioLowerVolume
 
-"pactl set-sink-mute @DEFAULT_SINK@ toggle"
+"pactl set-sink-mute @DEFAULT_SINK@ toggle && ~/Scripts/volBind.sh"
   XF86AudioMute
 
 "cd ~ && st"

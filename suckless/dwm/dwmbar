@@ -1,0 +1,101 @@
+#!/bin/bash
+
+packages()
+{
+  if [ $(( 10#$(date '+%M') % 3 )) -eq 0 ] && [ $(( 10#$(date '+%S') )) -eq 5 ]; then
+    if ! updates_arch=$(checkupdates 2> /dev/null | wc -l ); then
+        updates_arch=0
+    fi
+
+    if ! updates_aur=$(yay -Qum 2> /dev/null | wc -l); then
+        updates_aur=0
+    fi
+
+    updates=$(("$updates_arch" + "$updates_aur"))
+
+    if [ ! -e /tmp/dwmbar_packages ]; then
+      touch /tmp/dwmbar_packages
+    fi
+
+    echo "$updates" > /tmp/dwmbar_packages  
+  fi
+
+  if [ -s /tmp/dwmbar_packages ]; then
+    if [ "$(cat /tmp/dwmbar_packages)" -ne 0 ]; then
+      echo "󰣇 $(cat /tmp/dwmbar_packages) | "
+    else
+      echo ""
+    fi
+  else
+    echo ""
+  fi
+}
+
+mpd()
+{
+	current_song="$(mpc current -f %title%)"
+  playTime="$(mpc | awk '/\[.*]/{split($0, a, " "); print a[3]}')"
+
+	if [[ "$current_song" = "" ]]; then
+		echo ""
+		exit 0
+	else
+		playpause=$(mpc | awk '/\[.*]/{split($0, a, " "); print a[1]}')
+		if [[ "$playpause" = "[playing]" ]]; then
+			current_song="$current_song $playTime"
+		elif [[ "$playpause" = "[paused]" ]]; then
+			echo ""
+		  exit 0
+		fi
+	fi
+
+	echo "$current_song | "
+}
+
+main()
+{
+  VOLUME=""
+  WIFI=' '
+
+    if grep -q wl* "/proc/net/wireless"; then
+      # Wifi quality percentage
+      percentage=$(grep "^\s*w" /proc/net/wireless | awk '{ print "", int($3 * 100 / 70)}'| xargs)
+      case $percentage in
+         0)                       WIFI='󰤮' ;;
+         100|9[0-9]|8[0-9])       WIFI='󰤨' ;;
+         7[0-9]|6[0-9]|5[0-9])    WIFI='󰤥' ;;
+         4[0-9]|3[0-9])           WIFI='󰤢' ;;
+         2[0-9]|1[0-9]|[0-9])     WIFI='󰤟' ;;
+      esac
+    fi
+
+    if [ -f /tmp/dwmbar_volume ] && [ "$(cat /tmp/dwmbar_volume)" = "1" ]; then
+      VOLUME=$(pactl get-sink-volume @DEFAULT_SINK@ | tail -n 2 | sed -e 's,.* \([0-9][0-9]*\)%.*,󰕾 \1% ,' | head -n 1)
+      # Overwrites volume if muted
+      VOLUME=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -q "yes" && echo "󰖁 " || echo "$VOLUME")
+    else
+      VOLUME='' 
+    fi
+
+    if [ -d /sys/class/power_supply/BAT0 ]; then
+      ICON="%"
+		  capacity=$(cat /sys/class/power_supply/BAT0/capacity)
+		  charging=$(cat /sys/class/power_supply/BAT0/status)
+
+  		if [[ "$charging" == "Charging" ]]; then
+	  		ICON=''
+		  elif [[ $capacity -le 15 ]]; then
+			  ICON=''
+		  fi
+	  fi
+    # there is a thin space after wifi
+    echo "$VOLUME$capacity$ICON $WIFI  $(date '+%H:%M')"
+}
+
+update() {
+  xsetroot -name "$(mpd)$(packages)$(main)"
+}
+
+while :; do
+    sleep 0.10 && update
+done
