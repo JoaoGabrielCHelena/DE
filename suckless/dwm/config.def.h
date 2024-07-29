@@ -11,11 +11,17 @@ static const char *fonts[]          = { "0xProto Nerd Font:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
 static const char clr_normBdr[]     = "#444444"; 
 static const char clr_selBdr[]      = "#e09ece"; 
-static const char clr_fgNorm[]      = "#000000";
-static const char clr_bgNorm[]      = "#e09ece";
+/* Normal */
+static const char clr_fgNorm[]      = "#e09ece";
+static const char clr_bgNorm[]      = "#000000";
+/* Selectd */
 static const char clr_fgSel[]       = "#000000";
-static const char clr_bgSel[]       = "#ed91d5";
+static const char clr_bgSel[]       = "#e09ece";
+
+
+
 static const char clr_unused[]      = "#000000";
+
 static const unsigned int transparent   = 0x00;
 static const unsigned int alphaNorm = 0x99;
 static const unsigned int alphaSel  = 0xcc;
@@ -82,7 +88,7 @@ static const Layout layouts[] = {
 /* commands */
 // if i am ever smart, i will find a way to remove this
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", "#222222", "-nf", "#bbbbbb", "-sb", clr_bgNorm, "-sf", "#000000", NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", clr_bgNorm, "-nf", clr_fgNorm, "-sb", clr_bgSel, "-sf", clr_fgSel, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
 static const Key keys[] = {
