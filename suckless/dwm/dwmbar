@@ -52,6 +52,11 @@ mpd()
 	echo "$current_song | "
 }
 
+get_date()
+{
+    echo "$(date '+%d/%m/%y [%a/%b] | ')"
+}
+
 main()
 {
   VOLUME=""
@@ -93,7 +98,7 @@ main()
 }
 
 update() {
-  xsetroot -name "$(mpd)$(packages)$(main)"
+  xsetroot -name "$(mpd)$(packages)$(get_date)$(main)"
 }
 
 while :; do
