@@ -5,10 +5,12 @@ static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
+static const unsigned int barBdr    = 1;        /* 0 means no bar border */
 static const int vertpad            = 10;       /* vertical padding of bar */
 static const int sidepad            = 10;       /* horizontal padding of bar */
 static const char *fonts[]          = { "0xProto Nerd Font:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
+static const char clr_barBdr[]      = "#e09ece"; 
 static const char clr_normBdr[]     = "#444444"; 
 static const char clr_selBdr[]      = "#e09ece"; 
 /* Normal */
@@ -17,8 +19,6 @@ static const char clr_bgNorm[]      = "#000000";
 /* Selectd */
 static const char clr_fgSel[]       = "#000000";
 static const char clr_bgSel[]       = "#e09ece";
-
-
 
 static const char clr_unused[]      = "#000000";
 
@@ -32,8 +32,8 @@ static const char *colors[][3]      = {
 	/*                        fg         bg         border   */
 	[SchemeNorm]      = { "#ffffff",  clr_unused, clr_normBdr }, // white fg for security
 	[SchemeSel]       = { clr_fgNorm,   clr_bgNorm,   clr_selBdr  },
-	[SchemeStatus]    = { clr_fgNorm,   clr_bgNorm,   clr_unused  }, 
-	[SchemeTagsNorm]  = { clr_fgNorm,   clr_bgNorm,   clr_unused  }, 
+	[SchemeStatus]    = { clr_fgNorm,   clr_bgNorm,   clr_barBdr  }, 
+	[SchemeTagsNorm]  = { clr_fgNorm,   clr_bgNorm,   clr_barBdr  }, 
 	[SchemeTagsSel]   = { clr_fgSel,   clr_bgSel, clr_unused  }, 
 };
 static const unsigned int alphas[][3]      = {

@@ -2,6 +2,7 @@
 - statuspadding
 - colorbar
 - holdbar
+- alpha
 
 ## other changes
 - Middle portion of the bar has been blasted from existance

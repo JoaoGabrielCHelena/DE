@@ -246,13 +246,42 @@ drw_circle(Drw *drw, int x, int y, unsigned int d)
 }
 
 void
-drw_rounded_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int r, int skip)
+drw_rounded_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int r, int skip, int border)
 {
 
   int d = r * 2;
+  XGCValues gc_values;
+  long original_fg;
+
+  /* skippable if the logic for the foreground is made before the drw function is called */
   if (!skip) {
   	XSetForeground(drw->dpy, drw->gc, drw->scheme[ColBg].pixel);
   }
+
+  if (border) {
+    /* in case the setforeground is skipped but a border is drawn, gotta remember the original foreground to return to it */
+    XGetGCValues(drw->dpy, drw->gc, GCForeground, &gc_values);
+    original_fg = gc_values.foreground;
+
+  	XSetForeground(drw->dpy, drw->gc, drw->scheme[ColBorder].pixel);
+    
+    drw_circle(drw, x, y, d);
+    drw_circle(drw, x, y + h - d, d);
+    drw_circle(drw, x + w - d, y, d);
+    drw_circle(drw, x + w - d, y + h - d, d);
+    // Vertical square
+	  XFillRectangle(drw->dpy, drw->drawable, drw->gc, x + r, y, w - r * 2, h);
+  	// Horizontal square
+    XFillRectangle(drw->dpy, drw->drawable, drw->gc, x, y + r, w, h - r * 2);
+
+  	XSetForeground(drw->dpy, drw->gc, original_fg);
+  }
+
+  x = x + border;
+  y = y + border;
+  h = h - border * 2;
+  w = w - border * 2;
+  
   drw_circle(drw, x, y, d);
   drw_circle(drw, x, y + h - d, d);
   drw_circle(drw, x + w - d, y, d);
@@ -290,7 +319,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
 		w = invert ? invert : ~invert;
 	} else {
 		XSetForeground(drw->dpy, drw->gc, drw->scheme[invert ? ColFg : ColBg].pixel);
-		drw_rounded_rect(drw, x, y, w, h, 4, 1);
+		drw_rounded_rect(drw, x, y, w, h, 4, 1, 0);
 		d = XftDrawCreate(drw->dpy, drw->drawable, drw->visual, drw->cmap);
 		x += lpad;
 		w -= lpad;

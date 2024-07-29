@@ -760,7 +760,7 @@ dirtomon(int dir)
 void
 drawbar(Monitor *m)
 {
-	int x, w, tw, xOffset = 0;
+	int x, w, bw, tw, xOffset = 0;
 	int boxs = drw->fonts->h / 9;
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
@@ -768,6 +768,9 @@ drawbar(Monitor *m)
 
 	if (!m->showbar)
 		return;
+
+  if (barBdr)
+    bw = borderpx;
 
 	drw_setscheme(drw, scheme[SchemeNorm]);  
   drw_rect(drw, 0, 0, m->ww, bh, True, 1);
@@ -779,7 +782,7 @@ drawbar(Monitor *m)
 		drw_setscheme(drw, scheme[SchemeStatus]);
 		tw = TEXTW(stext) - lrpad;
 		xOffset = m->ww - 2 - sp * 2 - tw - padding;
-    drw_rounded_rect(drw, xOffset - padding, 0, tw + padding * 2, bh, 10, 0);
+    drw_rounded_rect(drw, xOffset - padding, 0, tw + padding * 2, bh, 10, 0, bw);
 		drw_text(drw, xOffset, 0 + padding, tw, bh - padding * 2, 0, stext, 0);
 	}
 
@@ -794,8 +797,9 @@ drawbar(Monitor *m)
 		w = TEXTW(tags[i]);
 		x += w + 5;
 	}
-  drw_rounded_rect(drw, 0, 0, x - 5 + padding, bh, 10, 0);
-	// draws the tab numbers
+  drw_rounded_rect(drw, 0, 0, x - 5 + padding, bh, 10, 0, bw);
+  // draws the background for the tags ^^
+	// draws the tags vv
 	x = padding;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
