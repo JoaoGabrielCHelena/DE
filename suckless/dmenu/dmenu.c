@@ -169,6 +169,9 @@ drawmenu(void)
 	w = (lines > 0 || !matches) ? mw - x : inputw;
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	drw_text(drw, x, 0, w, bh, lrpad / 2, text, 0);
+  if (inputBorder) {
+	  drw_rect(drw, x, 0, w, bh, 0, 0); // border
+  }
 
 	curpos = TEXTW(text) - TEXTW(&text[cursor]);
 	if ((curpos += lrpad / 2 - 1) < w) {
@@ -197,6 +200,10 @@ drawmenu(void)
 			drw_text(drw, mw - w, 0, w, bh, lrpad / 2, ">", 0);
 		}
 	}
+  if (border) {
+    drw_setscheme(drw, scheme[SchemeNorm]);
+	  drw_rect(drw, 0, 0, mw, mh, 0, 0); // border
+  }
 	drw_map(drw, win, 0, 0, mw, mh);
 }
 
