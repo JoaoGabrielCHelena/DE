@@ -23,7 +23,7 @@ else
   CURRENT="none"
 fi
 
-ZENITY_CMD="zenity --list --title='Choose Wallpaper Set' --text='Select from the list' --column='ID' --column='Theme'"
+DMENU_INPUT=""
 
 for PREFIX in "${ORDER[@]}"; do
   ISCURRENT=""
@@ -31,17 +31,14 @@ for PREFIX in "${ORDER[@]}"; do
     ISCURRENT=" (Current)"
   fi
   THEME="${THEMES[$PREFIX]}"
-  ZENITY_CMD="$ZENITY_CMD '$PREFIX' '$THEME$ISCURRENT'"
+  DMENU_INPUT+="[$PREFIX] $THEME$ISCURRENT\n"
 done
-#####################################
-SELECTED_PREFIX=$(eval $ZENITY_CMD | awk '{print $1}')
 
-for PREFIX in "${!THEMES[@]}"; do
-  if [[ "${THEMES[$PREFIX]}" == "$SELECTED_PREFIX" ]]; then
-    SELECTED_PREFIX="$PREFIX"
-    break
-  fi
-done
+DMENU_INPUT=$(echo -e "$DMENU_INPUT" | sed '/^$/d')
+
+SELECTED_THEME=$(echo -e "$DMENU_INPUT" | dmenu -i -p "Choose Wallpaper Set:")
+
+SELECTED_PREFIX=$(echo "$SELECTED_THEME" | awk '{print substr($1, 2, length($1)-2)}')
 
 if [[ -n "$SELECTED_PREFIX" ]]; then
   pkill -f 'wallLoop.sh' 
