@@ -298,7 +298,7 @@ holdbar(const Arg *arg)
 		return;
 	selmon->showbar = 2;
 	updateholdbarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh * 2 + vp);
 }
 
 void
@@ -331,7 +331,7 @@ updateholdbarpos(Monitor *m)
 		m->by = m->topbar ? m->wy : m->wy + m->wh - bh - vertpad;
 		m->wy = m->topbar ? m->wy : m->wy;
 	} else {
-		m->by = -bh - vertpad;
+		m->by = -bh * 2 - vertpad;
 	}
 }
 
@@ -773,7 +773,7 @@ drawbar(Monitor *m)
     bw = borderpx;
 
 	drw_setscheme(drw, scheme[SchemeNorm]);  
-  drw_rect(drw, 0, 0, m->ww, bh, True, 1);
+  drw_rect(drw, 0, 0, m->ww, bh * 2 + vp, True, 1);
 
 	int padding = 16;
 	// the bit on the right VVV 
@@ -792,21 +792,21 @@ drawbar(Monitor *m)
 			urg |= c->tags;
 	}
 
-	x = padding;
+  x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		x += w + 5;
 	}
-  drw_rounded_rect(drw, 0, 0, x - 5 + padding, bh, 10, 0, bw);
+  drw_rounded_rect(drw, m->ww - ( x - 5 + padding ) - sp * 2, bh + vp, x - 5 + padding, bh, 10, 0, bw);
   // draws the background for the tags ^^
 	// draws the tags vv
-	x = padding;
+	x = m->ww - ( x - 5 + padding ) - sp * 2 + padding / 2;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeTagsSel : SchemeTagsNorm]);
-		drw_text(drw, x, 0 + padding / 2, w, bh - padding, lrpad / 2, tags[i], urg & 1 << i);
+		drw_text(drw, x, bh + vp + padding / 2, w, bh - padding, lrpad / 2, tags[i], urg & 1 << i);
 		if (occ & 1 << i)
-			drw_rect(drw, x + 2 + boxs, boxs + 2 + padding / 2, boxw, boxw,
+			drw_rect(drw, x + 2 + boxs, bh + vp + boxs + 2 + padding / 2, boxw, boxw,
 				m == selmon && selmon->sel && selmon->sel->tags & 1 <<i,
 				urg & 1 << i);
 		x += w + 5;
@@ -828,7 +828,7 @@ drawbar(Monitor *m)
 	// 	}
 	// }
 	// draws the text
-	drw_map(drw, m->barwin, 0, 0, m->ww, bh);
+	drw_map(drw, m->barwin, 0, 0, m->ww, bh * 2 + padding);
 }
 
 void
@@ -1808,7 +1808,7 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = (selmon->showbar == 2 ? 1 : !selmon->showbar);
 	updatebarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh * 2 + vp);
 	arrange(selmon);
 }
 
@@ -1921,7 +1921,7 @@ updatebars(void)
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
-		m->barwin = XCreateWindow(dpy, root, m->wx + sp, m->by + vp, m->ww - 2 * sp, bh, 0, depth,
+		m->barwin = XCreateWindow(dpy, root, m->wx + sp, m->by + vp, m->ww - 2 * sp, bh * 2 + vp, 0, depth,
 				InputOutput, visual,
 				CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
@@ -1936,11 +1936,10 @@ updatebarpos(Monitor *m)
 	m->wy = m->my;
 	m->wh = m->mh;
 	if (m->showbar) {
-		m->wh = m->wh - vertpad - bh;
-		m->by = m->topbar ? m->wy : m->wy + m->wh + vertpad;
-		m->wy = m->topbar ? m->wy + bh + vp : m->wy;
+		m->wh = m->wh ;
+		m->by = m->topbar ? m->wy : m->wy + m->wh * bh * 2 + vertpad;
 	} else
-		m->by = -bh - vp;
+		m->by = -bh * 2 - vp * 2;
 }
 
 void
