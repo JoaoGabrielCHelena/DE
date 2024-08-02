@@ -248,8 +248,8 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
 static int lrpad;            /* sum of left and right padding for text */
-static int vp;               /* vertical padding for bar */
-static int sp;               /* side padding for bar */
+static int vm;               /* vertical margin for bar */
+static int sm;               /* side margin for bar */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
@@ -298,7 +298,7 @@ holdbar(const Arg *arg)
 		return;
 	selmon->showbar = 2;
 	updateholdbarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh * 2 + vp);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh * 2 + vm);
 }
 
 void
@@ -317,7 +317,7 @@ keyrelease(XEvent *e)
 	if (e->xkey.keycode == XKeysymToKeycode(dpy, HOLDKEY) && selmon->showbar == 2) {
 		selmon->showbar = 0;
 		updateholdbarpos(selmon);
-		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh);
+		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh);
 		arrange(selmon);
 	}
 }
@@ -328,10 +328,10 @@ updateholdbarpos(Monitor *m)
 	m->wy = m->my;
 	m->wh = m->mh;
 	if (m->showbar) {
-		m->by = m->topbar ? m->wy : m->wy + m->wh - bh - vertpad;
+		m->by = m->topbar ? m->wy : m->wy + m->wh - bh - vm;
 		m->wy = m->topbar ? m->wy : m->wy;
 	} else {
-		m->by = -bh * 2 - vertpad;
+		m->by = -bh * 2 - vm;
 	}
 }
 
@@ -495,14 +495,14 @@ buttonpress(XEvent *e)
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
-    int y = bh + 16;
+    int y = bh + barpadding;
 
 
     /* figuring out the width to figure out the tags starting position */
 	  for (i = 0; i < LENGTH(tags); i++) {
 		  x += TEXTW(tags[i]) + 5;
 	  }
-  	x = m->ww - ( x - 5 + 16 ) - sp * 2 + 8;
+  	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding;
 
     i = 0;
 
@@ -643,7 +643,7 @@ configurenotify(XEvent *e)
 				for (c = m->clients; c; c = c->next)
 					if (c->isfullscreen)
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
-				XMoveResizeWindow(dpy, m->barwin, m->wx + sp, m->by + vp, m->ww -  2 * sp, bh);
+				XMoveResizeWindow(dpy, m->barwin, m->wx + sm, m->by + vm, m->ww -  2 * sm, bh);
 			}
 			focus(NULL);
 			arrange(NULL);
@@ -784,17 +784,16 @@ drawbar(Monitor *m)
     bw = borderpx;
 
 	drw_setscheme(drw, scheme[SchemeNorm]);  
-  drw_rect(drw, 0, 0, m->ww, bh * 2 + vp, True, 1);
+  drw_rect(drw, 0, 0, m->ww, bh * 2 + vm, True, 1);
 
-	int padding = 16;
 	// the bit on the right VVV 
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeStatus]);
 		tw = TEXTW(stext) - lrpad;
-		xOffset = m->ww - 2 - sp * 2 - tw - padding;
-    drw_rounded_rect(drw, xOffset - padding, 0, tw + padding * 2, bh, 10, 0, bw);
-		drw_text(drw, xOffset, 0 + padding, tw, bh - padding * 2, 0, stext, 0);
+		xOffset = m->ww - 2 - sm * 2 - tw - barpadding;
+    drw_rounded_rect(drw, xOffset - barpadding, 0, tw + barpadding * 2, bh, 10, 0, bw);
+		drw_text(drw, xOffset, 0 + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
 	}
 
 	for (c = m->clients; c; c = c->next) {
@@ -808,16 +807,16 @@ drawbar(Monitor *m)
 		w = TEXTW(tags[i]);
 		x += w + 5;
 	}
-  drw_rounded_rect(drw, m->ww - ( x - 5 + padding ) - sp * 2, bh + vp, x - 5 + padding, bh, 10, 0, bw);
+  drw_rounded_rect(drw, m->ww - ( x - 5 + barpadding ) - sm * 2, bh + vm, x - 5 + barpadding, bh, 10, 0, bw);
   // draws the background for the tags ^^
 	// draws the tags vv
-	x = m->ww - ( x - 5 + padding ) - sp * 2 + padding / 2;
+	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding / 2;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeTagsSel : SchemeTagsNorm]);
-		drw_text(drw, x, bh + vp + padding / 2, w, bh - padding, lrpad / 2, tags[i], urg & 1 << i);
+		drw_text(drw, x, bh + vm + barpadding / 2, w, bh - barpadding, lrpad / 2, tags[i], urg & 1 << i);
 		if (occ & 1 << i)
-			drw_rect(drw, x + 2 + boxs, bh + vp + boxs + 2 + padding / 2, boxw, boxw,
+			drw_rect(drw, x + 2 + boxs, bh + vm + boxs + 2 + barpadding / 2, boxw, boxw,
 				m == selmon && selmon->sel && selmon->sel->tags & 1 <<i,
 				urg & 1 << i);
 		x += w + 5;
@@ -839,7 +838,7 @@ drawbar(Monitor *m)
 	// 	}
 	// }
 	// draws the text
-	drw_map(drw, m->barwin, 0, 0, m->ww, bh * 2 + padding);
+	drw_map(drw, m->barwin, 0, 0, m->ww, bh * 2 + barpadding);
 }
 
 void
@@ -1662,8 +1661,8 @@ setup(void)
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
 	bh = drw->fonts->h + 26;
-	sp = sidepad;
-	vp = (topbar == 1) ? vertpad : - vertpad;
+	sm = sidemarg;
+	vm = (topbar == 1) ? vertmarg : - vertmarg;
 	updategeom();
 
 	/* init atoms */
@@ -1819,7 +1818,7 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = (selmon->showbar == 2 ? 1 : !selmon->showbar);
 	updatebarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh * 2 + vp);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh * 2 + vm);
 	arrange(selmon);
 }
 
@@ -1932,7 +1931,7 @@ updatebars(void)
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
-		m->barwin = XCreateWindow(dpy, root, m->wx + sp, m->by + vp, m->ww - 2 * sp, bh * 2 + vp, 0, depth,
+		m->barwin = XCreateWindow(dpy, root, m->wx + sm, m->by + vm, m->ww - 2 * sm, bh * 2 + vm, 0, depth,
 				InputOutput, visual,
 				CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
@@ -1948,9 +1947,9 @@ updatebarpos(Monitor *m)
 	m->wh = m->mh;
 	if (m->showbar) {
 		m->wh = m->wh ;
-		m->by = m->topbar ? m->wy : m->wy + m->wh * bh * 2 + vertpad;
+		m->by = m->topbar ? m->wy : m->wy + m->wh * bh * 2 + vm;
 	} else
-		m->by = -bh * 2 - vp * 2;
+		m->by = -bh * 2 - vm * 2;
 }
 
 void

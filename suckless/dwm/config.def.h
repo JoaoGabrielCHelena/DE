@@ -6,10 +6,11 @@ static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const unsigned int barBdr    = 1;        /* 0 means no bar border */
-static const int vertpad            = 10;       /* vertical padding of bar */
-static const int sidepad            = 10;       /* horizontal padding of bar */
+static const int vertmarg           = 10;       /* vertical margin of bar */
+static const int sidemarg           = 10;       /* horizontal margin of bar, barpadding patch is just named wrong imo */
+static const int barpadding         = 16;       /* bar padding, the actual visual value is half the set value */
 static const char *fonts[]          = { "0xProto Nerd Font:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
+static const char dmenufont[]       = "0xProto Nerd Font:size=10";
 static const char clr_barBdr[]      = "#e09ece"; 
 static const char clr_normBdr[]     = "#444444"; 
 static const char clr_selBdr[]      = "#e09ece"; 
@@ -23,26 +24,26 @@ static const char clr_bgSel[]       = "#e09ece";
 static const char clr_unused[]      = "#000000";
 
 static const unsigned int transparent   = 0x00;
-static const unsigned int alphaNorm = 0x99;
-static const unsigned int alphaSel  = 0xcc;
-static const unsigned int bdrAlphaSel  = OPAQUE; // opaque is set in another file, only god knows why
-static const unsigned int bdrAlphaNorm = OPAQUE; // opaque is set in another file, only god knows why
+static const unsigned int alphaNorm     = 0x99;
+static const unsigned int alphaSel      = 0xcc;
+static const unsigned int bdrAlphaSel   = OPAQUE; // opaque is set in another file, only god knows why
+static const unsigned int bdrAlphaNorm  = OPAQUE; // opaque is set in another file, only god knows why
 
 static const char *colors[][3]      = {
-	/*                        fg         bg         border   */
-	[SchemeNorm]      = { "#ffffff",  clr_unused, clr_normBdr }, // white fg for security
-	[SchemeSel]       = { clr_fgNorm,   clr_bgNorm,   clr_selBdr  },
-	[SchemeStatus]    = { clr_fgNorm,   clr_bgNorm,   clr_barBdr  }, 
-	[SchemeTagsNorm]  = { clr_fgNorm,   clr_bgNorm,   clr_barBdr  }, 
-	[SchemeTagsSel]   = { clr_fgSel,   clr_bgSel, clr_unused  }, 
+	/*                        fg           bg         border   */
+	[SchemeNorm]      = { "#ffffff",   clr_unused, clr_normBdr }, // white fg for security
+	[SchemeSel]       = { clr_fgNorm,  clr_bgNorm, clr_selBdr  },
+	[SchemeStatus]    = { clr_fgNorm,  clr_bgNorm, clr_barBdr  }, 
+	[SchemeTagsNorm]  = { clr_fgNorm,  clr_bgNorm, clr_barBdr  }, 
+	[SchemeTagsSel]   = { clr_fgSel,   clr_bgSel,  clr_unused  }, 
 };
 static const unsigned int alphas[][3]      = {
 	/*                      fg      bg              border     */
-	[SchemeNorm]      = { OPAQUE, transparent,       bdrAlphaNorm },
-	[SchemeSel]       = { OPAQUE, OPAQUE,         bdrAlphaSel },
-	[SchemeStatus]    = { OPAQUE, alphaNorm,  bdrAlphaNorm  }, 
-	[SchemeTagsSel]   = { OPAQUE, alphaSel,    bdrAlphaSel  }, 
-	[SchemeTagsNorm]  = { OPAQUE, alphaNorm,  bdrAlphaNorm  }, 
+	[SchemeNorm]      = { OPAQUE, transparent,  bdrAlphaNorm },
+	[SchemeSel]       = { OPAQUE, OPAQUE,       bdrAlphaSel },
+	[SchemeStatus]    = { OPAQUE, alphaNorm,    bdrAlphaNorm  }, 
+	[SchemeTagsSel]   = { OPAQUE, alphaSel,     bdrAlphaSel  }, 
+	[SchemeTagsNorm]  = { OPAQUE, alphaNorm,    bdrAlphaNorm  }, 
 };
 
 /* tagging */
@@ -55,7 +56,6 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     iscentered   isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            0,           0,           -1 },
-	{ "zenity",   NULL,       NULL,       0,            1,           1,           -1 },
 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
 };
 
