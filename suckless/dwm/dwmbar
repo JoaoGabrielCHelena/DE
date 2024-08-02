@@ -33,7 +33,14 @@ packages()
 
 mpd()
 {
-	current_song="$(mpc current -f %title%)"
+
+  if ! pgrep -x "mpd" > /dev/null; then
+      echo ""
+      exit 0
+  fi
+
+
+  current_song="$(mpc current -f %title%)"
   playTime="$(mpc | awk '/\[.*]/{split($0, a, " "); print a[3]}')"
 
 	if [[ "$current_song" = "" ]]; then
