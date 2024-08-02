@@ -1,4 +1,5 @@
 #!/bin/bash
+# Changes wallpaper to the next index
 
 
 IMAGE_DIR="$HOME/Backgrounds"

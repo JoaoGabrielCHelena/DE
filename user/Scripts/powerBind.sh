@@ -1,4 +1,6 @@
 #!/bin/bash
+# Bound to Ctrl + Shift + s
+# Shows a dmenu with power options
 
 OPTIONS="Shutdown\nReboot\nSleep\nHibernate\nEnd Session"
 

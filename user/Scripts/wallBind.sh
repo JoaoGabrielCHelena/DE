@@ -1,8 +1,10 @@
 #!/bin/bash
+# Bound to Ctrl + Shift + w
+# Lets tou select a folder in the ~/Backgrounds/ folder
 
 SCRIPT_PATH="$HOME/Scripts/wallLoop.sh"
 
-# Define the list of items and their prefixes
+# Define the list of items and their prefixes (folder name)
 declare -A THEMES
 THEMES=(
   ["E"]="Misc"

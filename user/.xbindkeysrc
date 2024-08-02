@@ -88,9 +88,6 @@
   XF86AudioMute
 
 "cd ~ && st"
-  Control + Alt + t
-
-"cd ~ && st"
   Control + Shift + t
 
 "bash ~/Scripts/wallBind.sh"

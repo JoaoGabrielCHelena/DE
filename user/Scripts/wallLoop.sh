@@ -1,4 +1,5 @@
 #!/bin/bash
+# Changes wallpaper every 300 seconds
 
 SCRIPT_PATH="$HOME/Scripts/wallCycle.sh"
 
