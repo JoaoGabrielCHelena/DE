@@ -25,7 +25,7 @@ Ctrl + Shift + t = St
 Ctrl + Shift + return = Dmenu (specifically dmenu_run)  
 Ctrl + Shift + s = Power settings  
 Ctrl + Shift + w = Wallpaper theme selector  
-Ctrl + Shift + v = Paste using xvkb  
+Ctrl + Shift + n = Paste using xvkb  
 
 ## Wallpapers
 

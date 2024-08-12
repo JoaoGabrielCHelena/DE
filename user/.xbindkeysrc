@@ -96,11 +96,8 @@
 "bash ~/Scripts/powerBind.sh"
   Control + Shift + s
 
-"xsel | xclip -selection clipboard"
-  Control + Shift + c
-
 "xclip -selection clipboard -o | xvkbd -xsendevent -file -"
-  Control + Shift + v
+  Control + Shift + n
 ##################################
 # End of xbindkeys configuration #
 ##################################

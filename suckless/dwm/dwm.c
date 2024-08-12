@@ -248,8 +248,9 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
 static int lrpad;            /* sum of left and right padding for text */
-static int vm;               /* vertical margin for bar */
+static int vm;               /* vertical margin for between bars */
 static int sm;               /* side margin for bar */
+static int bm;               /* vertical margin for bar */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
@@ -298,7 +299,7 @@ holdbar(const Arg *arg)
 		return;
 	selmon->showbar = 2;
 	updateholdbarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh * 2 + vm);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh * 2 + vm);
 }
 
 void
@@ -317,7 +318,7 @@ keyrelease(XEvent *e)
 	if (e->xkey.keycode == XKeysymToKeycode(dpy, HOLDKEY) && selmon->showbar == 2) {
 		selmon->showbar = 0;
 		updateholdbarpos(selmon);
-		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh);
+		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh);
 		arrange(selmon);
 	}
 }
@@ -495,14 +496,13 @@ buttonpress(XEvent *e)
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
-    int y = bh + barpadding;
-
+    int y = (topbar == 1) ? bh + barpadding / 2 : 0 + barpadding / 2;
 
     /* figuring out the width to figure out the tags starting position */
 	  for (i = 0; i < LENGTH(tags); i++) {
 		  x += TEXTW(tags[i]) + 5;
 	  }
-  	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding;
+  	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding / 2;
 
     i = 0;
 
@@ -771,7 +771,7 @@ dirtomon(int dir)
 void
 drawbar(Monitor *m)
 {
-	int x, w, bw, tw, xOffset = 0;
+	int x, w, bw, tw, y = 0;
 	int boxs = drw->fonts->h / 9;
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
@@ -786,14 +786,15 @@ drawbar(Monitor *m)
 	drw_setscheme(drw, scheme[SchemeNorm]);  
   drw_rect(drw, 0, 0, m->ww, bh * 2 + vm, True, 1);
 
+	y = (topbar == 1) ? 0 : bh + vm;
 	// the bit on the right VVV 
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeStatus]);
 		tw = TEXTW(stext) - lrpad;
-		xOffset = m->ww - 2 - sm * 2 - tw - barpadding;
-    drw_rounded_rect(drw, xOffset - barpadding, 0, tw + barpadding * 2, bh, 10, 0, bw);
-		drw_text(drw, xOffset, 0 + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
+		x = m->ww - 2 - sm * 2 - tw - barpadding;
+    drw_rounded_rect(drw, x - barpadding, y, tw + barpadding * 2, bh, 10, 0, bw);
+		drw_text(drw, x, y + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
 	}
 
 	for (c = m->clients; c; c = c->next) {
@@ -802,21 +803,22 @@ drawbar(Monitor *m)
 			urg |= c->tags;
 	}
 
+	y = (topbar == 1) ? bh + vm : 0;
   x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		x += w + 5;
 	}
-  drw_rounded_rect(drw, m->ww - ( x - 5 + barpadding ) - sm * 2, bh + vm, x - 5 + barpadding, bh, 10, 0, bw);
+  drw_rounded_rect(drw, m->ww - ( x - 5 + barpadding ) - sm * 2, y, x - 5 + barpadding, bh, 10, 0, bw);
   // draws the background for the tags ^^
 	// draws the tags vv
 	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding / 2;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeTagsSel : SchemeTagsNorm]);
-		drw_text(drw, x, bh + vm + barpadding / 2, w, bh - barpadding, lrpad / 2, tags[i], urg & 1 << i);
+		drw_text(drw, x, y + barpadding / 2, w, bh - barpadding, lrpad / 2, tags[i], urg & 1 << i);
 		if (occ & 1 << i)
-			drw_rect(drw, x + 2 + boxs, bh + vm + boxs + 2 + barpadding / 2, boxw, boxw,
+			drw_rect(drw, x + 2 + boxs, y + boxs + 2 + barpadding / 2, boxw, boxw,
 				m == selmon && selmon->sel && selmon->sel->tags & 1 <<i,
 				urg & 1 << i);
 		x += w + 5;
@@ -1662,7 +1664,8 @@ setup(void)
 	lrpad = drw->fonts->h;
 	bh = drw->fonts->h + 26;
 	sm = sidemarg;
-	vm = (topbar == 1) ? vertmarg : - vertmarg;
+	vm = vertmarg;
+	bm = (topbar == 1) ? vertmarg : -vertmarg - bh;
 	updategeom();
 
 	/* init atoms */
@@ -1818,7 +1821,7 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = (selmon->showbar == 2 ? 1 : !selmon->showbar);
 	updatebarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + vm, selmon->ww - 2 * sm, bh * 2 + vm);
+	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh * 2 + vm);
 	arrange(selmon);
 }
 
@@ -1931,7 +1934,7 @@ updatebars(void)
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
-		m->barwin = XCreateWindow(dpy, root, m->wx + sm, m->by + vm, m->ww - 2 * sm, bh * 2 + vm, 0, depth,
+		m->barwin = XCreateWindow(dpy, root, m->wx + sm, m->by + bm, m->ww - 2 * sm, bh * 2 + vm, 0, depth,
 				InputOutput, visual,
 				CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
@@ -1947,7 +1950,7 @@ updatebarpos(Monitor *m)
 	m->wh = m->mh;
 	if (m->showbar) {
 		m->wh = m->wh ;
-		m->by = m->topbar ? m->wy : m->wy + m->wh * bh * 2 + vm;
+		m->by = m->topbar ? m->wy : m->wy + m->wh + bm;
 	} else
 		m->by = -bh * 2 - vm * 2;
 }
@@ -2286,12 +2289,17 @@ main(int argc, char *argv[])
 {
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
-	else if (argc != 1)
+	else if (argc != 1 && strcmp("-s", argv[1]))
 		die("usage: dwm [-v]");
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
+	if (argc > 1 && !strcmp("-s", argv[1])) {
+		XStoreName(dpy, RootWindow(dpy, DefaultScreen(dpy)), argv[2]);
+		XCloseDisplay(dpy);
+		return 0;
+	}
 	checkotherwm();
 	setup();
 #ifdef __OpenBSD__
