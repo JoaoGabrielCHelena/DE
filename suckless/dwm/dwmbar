@@ -104,6 +104,14 @@ main()
     echo "$VOLUME$capacity$ICON $WIFI  $(date '+%H:%M')"
 }
 
+# get_cputemp()
+# {
+# 	CPU_TEMP="$(sensors | grep temp1 | awk 'NR==1{gsub("+", " "); gsub("\\..", " "); print $2}')"
+#
+# 	echo "$CPU_TEMP°C | "
+# }
+
+
 update() {
   dwm -s "$(mpd)$(packages)$(get_date)$(main)"
 }

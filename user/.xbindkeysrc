@@ -72,11 +72,50 @@
 "mpc toggle"
   XF86Messenger
 
+"mpc toggle"
+  Mod4 + Super_L + Return
+
+"mpc toggle"
+  Mod4 + Super_L + space
+
 "mpc next"
   XF86Stop
 
+"mpc next"
+  Mod4 + Super_L + Next
+
+"xdotool click 5"
+    Mod4 + j
+
+"xdotool click 4"
+    Mod4 + k
+
+"xdotool key ctrl+Tab"
+    Mod4 + l
+
+"xdotool keyup Mod4; xdotool key ctrl+shift+Tab"
+    Mod4 + h
+
 "mpc prev"
   XF86Go
+
+"mpc prev"
+  Mod4 + Super_L + Prior
+
+"mpc seek -5"
+  Mod4 + Super_L + Left
+
+"mpc seek +5"
+  Mod4 + Super_L + Right
+
+"mpc seek 0"
+  Mod4 + Super_L + BackSpace
+
+"mpc volume +5"
+  Mod4 + Super_L + Up
+
+"mpc volume -5"
+  Mod4 + Super_L + Down
 
 "pactl set-sink-volume @DEFAULT_SINK@ +5% && ~/Scripts/volBind.sh"
   XF86AudioRaiseVolume
@@ -98,6 +137,7 @@
 
 "xclip -selection clipboard -o | xvkbd -xsendevent -file -"
   Control + Shift + n
+
 ##################################
 # End of xbindkeys configuration #
 ##################################

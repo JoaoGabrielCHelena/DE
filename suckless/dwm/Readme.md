@@ -3,6 +3,7 @@
 - colorbar
 - holdbar
 - alpha
+- fakefullscreeb
 
 ## other changes
 - Middle portion of the bar has been blasted from existance

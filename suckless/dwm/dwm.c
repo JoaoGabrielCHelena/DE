@@ -126,6 +126,7 @@ struct Monitor {
 	unsigned int tagset[2];
 	int showbar;
 	int topbar;
+  int rightbar;
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -214,6 +215,8 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
+static void toggletopbar(const Arg *arg);
+static void togglerightbar(const Arg *arg);
 static void holdbar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -597,7 +600,7 @@ clientmessage(XEvent *e)
 		if (cme->data.l[1] == netatom[NetWMFullscreen]
 		|| cme->data.l[2] == netatom[NetWMFullscreen])
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
-				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
+				|| cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */));
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
 		if (c != selmon->sel && !c->isurgent)
 			seturgent(c, 1);
@@ -627,7 +630,6 @@ void
 configurenotify(XEvent *e)
 {
 	Monitor *m;
-	Client *c;
 	XConfigureEvent *ev = &e->xconfigure;
 	int dirty;
 
@@ -640,9 +642,6 @@ configurenotify(XEvent *e)
 			drw_resize(drw, sw, bh);
 			updatebars();
 			for (m = mons; m; m = m->next) {
-				for (c = m->clients; c; c = c->next)
-					if (c->isfullscreen)
-						resizeclient(c, m->mx, m->my, m->mw, m->mh);
 				XMoveResizeWindow(dpy, m->barwin, m->wx + sm, m->by + vm, m->ww -  2 * sm, bh);
 			}
 			focus(NULL);
@@ -714,6 +713,7 @@ createmon(void)
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
+	m->rightbar = rightbar;
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
 	strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
@@ -768,79 +768,97 @@ dirtomon(int dir)
 	return m;
 }
 
+// get width of tag bar
+// get width of status bar
+// se width of window to largest of the two
+// set x of window based on its width, alignment, and margin
+
 void
 drawbar(Monitor *m)
 {
-	int x, w, bw, tw, y = 0;
-	int boxs = drw->fonts->h / 9;
-	int boxw = drw->fonts->h / 6 + 2;
-	unsigned int i, occ = 0, urg = 0;
-	Client *c;
+  int x, w, bw, tw, y = 0;
+  int width = 0;
+  int boxs = drw->fonts->h / 9;
+  int boxw = drw->fonts->h / 6 + 2;
+  unsigned int i, occ = 0, urg = 0;
+  Client *c;
 
-	if (!m->showbar)
-		return;
+  if (!m->showbar)
+    return;
 
   if (barBdr)
     bw = borderpx;
 
-	drw_setscheme(drw, scheme[SchemeNorm]);  
+  // Draw the bar background
+  drw_setscheme(drw, scheme[SchemeNorm]);
   drw_rect(drw, 0, 0, m->ww, bh * 2 + vm, True, 1);
 
-	y = (topbar == 1) ? 0 : bh + vm;
-	// the bit on the right VVV 
-	/* draw status first so it can be overdrawn by tags later */
-	if (m == selmon) { /* status is only drawn on selected monitor */
-		drw_setscheme(drw, scheme[SchemeStatus]);
-		tw = TEXTW(stext) - lrpad;
-		x = m->ww - 2 - sm * 2 - tw - barpadding;
-    drw_rounded_rect(drw, x - barpadding, y, tw + barpadding * 2, bh, 10, 0, bw);
-		drw_text(drw, x, y + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
-	}
+  y = (topbar == 1) ? 0 : bh + vm;
 
-	for (c = m->clients; c; c = c->next) {
-		occ |= c->tags;
-		if (c->isurgent)
-			urg |= c->tags;
-	}
+  // Draw the status bar on the right if this is the selected monitor
+  if (m == selmon) {
+    drw_setscheme(drw, scheme[SchemeStatus]);
+    tw = TEXTW(stext) - lrpad;
+    width = tw + barpadding * 2;
+    drw_rounded_rect(drw, 0, y, tw + barpadding * 2, bh, 10, 0, bw);
+    drw_text(drw, 0 + barpadding, y + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
+  }
 
-	y = (topbar == 1) ? bh + vm : 0;
+  // Calculate occupied and urgent tags
+  for (c = m->clients; c; c = c->next) {
+    occ |= c->tags;
+    if (c->isurgent)
+      urg |= c->tags;
+  }
+
+  // Draw tags
+  y = (topbar == 1) ? bh + vm : 0;
   x = 0;
-	for (i = 0; i < LENGTH(tags); i++) {
-		w = TEXTW(tags[i]);
-		x += w + 5;
-	}
-  drw_rounded_rect(drw, m->ww - ( x - 5 + barpadding ) - sm * 2, y, x - 5 + barpadding, bh, 10, 0, bw);
-  // draws the background for the tags ^^
-	// draws the tags vv
-	x = m->ww - ( x - 5 + barpadding ) - sm * 2 + barpadding / 2;
-	for (i = 0; i < LENGTH(tags); i++) {
-		w = TEXTW(tags[i]);
-		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeTagsSel : SchemeTagsNorm]);
-		drw_text(drw, x, y + barpadding / 2, w, bh - barpadding, lrpad / 2, tags[i], urg & 1 << i);
-		if (occ & 1 << i)
-			drw_rect(drw, x + 2 + boxs, y + boxs + 2 + barpadding / 2, boxw, boxw,
-				m == selmon && selmon->sel && selmon->sel->tags & 1 <<i,
-				urg & 1 << i);
-		x += w + 5;
-	}
-  // draws the symbol if it is in tile or not tile VVV 
-	// w = TEXTW(m->ltsymbol);
-	// drw_setscheme(drw, scheme[SchemeTagsNorm]);
-	// x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+  for (i = 0; i < LENGTH(tags); i++) {
+    w = TEXTW(tags[i]);
+    x += w + 5;
+  }
 
-	// if ((w = m->ww - tw - x) > bh) {
-	// 	if (m->sel) {
-	//		drw_setscheme(drw, scheme[m == selmon ? SchemeInfoSel : SchemeInfoNorm]);
-	// 		drw_text(drw, x, 0, w - 2 * sp, bh, lrpad / 2, m->sel->name, 0);
-	// 		if (m->sel->isfloating)
-	// 			drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-	// 	} else {
-	//		drw_setscheme(drw, scheme[SchemeInfoNorm]);
-	// 		drw_rect(drw, x, 0, w, bh, 1, 1);
-	// 	}
-	// }
-	// draws the text
-	drw_map(drw, m->barwin, 0, 0, m->ww, bh * 2 + barpadding);
+  // Adjust width if necessary to include tags
+  width = (width < x - 5 + barpadding) ? x - 5 + barpadding : width;
+
+  // Draw the background for tags
+  drw_rounded_rect(
+    drw,
+    (width - (x - 5 + barpadding)) * rightbar,
+    y,
+    x - 5 + barpadding,
+    bh,
+    10,
+    0,
+    bw
+  );
+
+  // Draw the individual tags
+  x = (rightbar == 1) ? width - (x - 5 + barpadding) + barpadding / 2 : barpadding / 2;
+  for (i = 0; i < LENGTH(tags); i++) {
+    w = TEXTW(tags[i]);
+    drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeTagsSel : SchemeTagsNorm]);
+    drw_text(drw, x, y + barpadding / 2, w, bh - barpadding, lrpad / 2, tags[i], urg & 1 << i);
+    if (occ & 1 << i)
+      drw_rect(drw, x + 2 + boxs, y + boxs + 2 + barpadding / 2, boxw, boxw,
+               m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
+               urg & 1 << i);
+    x += w + 5;
+  }
+
+  // Position the bar window on the screen
+  XMoveResizeWindow(
+    dpy,
+    m->barwin,
+    m->mx + sm + ((m->ww - width - sm * 2) * rightbar),
+    m->my + (topbar == 1) ? 0 + vm : m->wh - bh * 2 - barpadding - vm,
+    width,
+    bh * 2 + barpadding
+  );
+
+  // Map the bar window
+  drw_map(drw, m->barwin, 0, 0, width, bh * 2 + barpadding);
 }
 
 void
@@ -1252,8 +1270,6 @@ movemouse(const Arg *arg)
 
 	if (!(c = selmon->sel))
 		return;
-	if (c->isfullscreen) /* no support moving fullscreen windows by mouse */
-		return;
 	restack(selmon);
 	ocx = c->x;
 	ocy = c->y;
@@ -1406,8 +1422,6 @@ resizemouse(const Arg *arg)
 	Time lasttime = 0;
 
 	if (!(c = selmon->sel))
-		return;
-	if (c->isfullscreen) /* no support resizing fullscreen windows by mouse */
 		return;
 	restack(selmon);
 	ocx = c->x;
@@ -1585,24 +1599,10 @@ setfullscreen(Client *c, int fullscreen)
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
 		c->isfullscreen = 1;
-		c->oldstate = c->isfloating;
-		c->oldbw = c->bw;
-		c->bw = 0;
-		c->isfloating = 1;
-		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
-		XRaiseWindow(dpy, c->win);
 	} else if (!fullscreen && c->isfullscreen){
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)0, 0);
 		c->isfullscreen = 0;
-		c->isfloating = c->oldstate;
-		c->bw = c->oldbw;
-		c->x = c->oldx;
-		c->y = c->oldy;
-		c->w = c->oldw;
-		c->h = c->oldh;
-		resizeclient(c, c->x, c->y, c->w, c->h);
-		arrange(c->mon);
 	}
 }
 
@@ -1738,7 +1738,7 @@ showhide(Client *c)
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
 		XMoveWindow(dpy, c->win, c->x, c->y);
-		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
+		if (!c->mon->lt[c->mon->sellt]->arrange || c->isfloating)
 			resize(c, c->x, c->y, c->w, c->h, 0);
 		showhide(c->snext);
 	} else {
@@ -1829,8 +1829,6 @@ void
 togglefloating(const Arg *arg)
 {
 	if (!selmon->sel)
-		return;
-	if (selmon->sel->isfullscreen) /* no support for fullscreen windows */
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
 	if (selmon->sel->isfloating)
@@ -2270,6 +2268,20 @@ xinitvisual()
 		depth = DefaultDepth(dpy, screen);
 		cmap = DefaultColormap(dpy, screen);
 	}
+}
+
+void
+togglerightbar(const Arg *arg)
+{
+  rightbar = arg->i;
+  drawbars();
+}
+
+void
+toggletopbar(const Arg *arg)
+{
+  topbar = arg->i;
+  drawbars();
 }
 
 void

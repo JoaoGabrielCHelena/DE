@@ -4,7 +4,8 @@
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 0;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static int topbar                   = 1;        /* 0 means bottom bar */
+static int rightbar                 = 1;        /* 0 means bar aligned to the left */
 static const unsigned int barBdr    = 1;        /* 0 means no bar border */
 static const int vertmarg           = 10;       /* vertical margin of bar */
 static const int sidemarg           = 10;       /* horizontal margin of bar, barpadding patch is just named wrong imo */
@@ -31,11 +32,11 @@ static const unsigned int bdrAlphaNorm  = OPAQUE; // opaque is set in another fi
 
 static const char *colors[][3]      = {
 	/*                        fg           bg         border   */
-	[SchemeNorm]      = { "#ffffff",   clr_unused, clr_normBdr }, // white fg for security
-	[SchemeSel]       = { clr_fgNorm,  clr_bgNorm, clr_selBdr  },
-	[SchemeStatus]    = { clr_fgNorm,  clr_bgNorm, clr_barBdr  }, 
-	[SchemeTagsNorm]  = { clr_fgNorm,  clr_bgNorm, clr_barBdr  }, 
-	[SchemeTagsSel]   = { clr_fgSel,   clr_bgSel,  clr_unused  }, 
+	[SchemeNorm]      = { "#ffffff",  clr_unused, clr_normBdr }, // white fg for security
+	[SchemeSel]       = { clr_fgNorm,   clr_bgNorm, clr_selBdr  },
+	[SchemeStatus]    = { clr_fgNorm,   clr_bgNorm, clr_barBdr  }, 
+	[SchemeTagsNorm]  = { clr_fgNorm,   clr_bgNorm, clr_barBdr  }, 
+	[SchemeTagsSel]   = { clr_fgSel,    clr_bgSel,  clr_unused  }, 
 };
 static const unsigned int alphas[][3]      = {
 	/*                      fg      bg              border     */
@@ -47,7 +48,7 @@ static const unsigned int alphas[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5" };
+static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -63,7 +64,7 @@ static const Rule rules[] = {
 static const float mfact     = 0.65; /* factor of master area size [0.05..0.95] */
 static int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
-static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
+static const int lockfullscreen = 0; /* 1 will force focus on the fullscreen window */
 
 // its not used but i am scared of removing code (i dont know how it works)
 static const Layout layouts[] = {
@@ -100,6 +101,10 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+  { MODKEY,                       XK_Right,  togglerightbar, {.i = 1} },
+  { MODKEY,                       XK_Left,   togglerightbar, {.i = 0} },
+  { MODKEY,                       XK_Up,     toggletopbar,   {.i = 1} },
+  { MODKEY,                       XK_Down,   toggletopbar,   {.i = 0} },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
