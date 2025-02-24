@@ -7,15 +7,16 @@ SCRIPT_PATH="$HOME/Scripts/wallLoop.sh"
 # Define the list of items and their prefixes (folder name)
 declare -A THEMES
 THEMES=(
-  ["E"]="Misc"
-  ["D"]="Sakutake"
+  ["F"]="Yoshiryuu"
+  ["E"]="Hideyoshi Ruwwe"
+  ["D"]="Rotarran"
   ["C"]="Machiyoh"
   ["B"]="YuCong Tang"
   ["A"]="Chihuri"
 )
 
 # Item order from top to bottom
-ORDER=("A" "B" "C" "D" "E")
+ORDER=("A" "B" "C" "D" "E" "F")
 
 PID=$(ps aux | grep 'cycleLoop.sh')
 
@@ -38,7 +39,7 @@ done
 
 DMENU_INPUT=$(echo -e "$DMENU_INPUT" | sed '/^$/d')
 
-SELECTED_THEME=$(echo -e "$DMENU_INPUT" | dmenu -i -p "Choose Wallpaper Set:")
+SELECTED_THEME=$(echo -e "$DMENU_INPUT" | dmenu -l 10 -i -p "Choose Wallpaper Set:")
 
 SELECTED_PREFIX=$(echo "$SELECTED_THEME" | awk '{print substr($1, 2, length($1)-2)}')
 

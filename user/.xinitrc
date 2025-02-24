@@ -1,5 +1,8 @@
-~/Scripts/wallLoop.sh A &
-# inverts touchpad scroll, enables touch to click, and fixes my silly keyboard layout
+LETTER=$(echo $((RANDOM % 6 + 65)) | awk '{printf "%c", $1}')
+~/Scripts/generateColors.sh "$LETTER"
+
+~/Scripts/wallLoop.sh "$LETTER" &
+# fixes my silly keyboard layout
 ~/Scripts/keybFix.sh &
 picom --config ~/.config/picom/picom.conf &
 xbindkeys &
