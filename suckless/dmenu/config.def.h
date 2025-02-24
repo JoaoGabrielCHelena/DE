@@ -10,12 +10,19 @@ static int inputBorder  = 1;    /* 1 means a border with the fg Norm color aroun
 static const char *fonts[] = {
 	"0xProto Nerd Font:size=10"
 };
-static const char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
-static const char *colors[SchemeLast][2] = {
+
+static char *prompt      = NULL;      /* -p  option; prompt to the left of input field */
+
+static char normfgcolor[] = "#e09ece";
+static char normbgcolor[] = "#000000";
+static char selfgcolor[]  = "#000000";
+static char selbgcolor[]  = "#e09ece";
+
+static char *colors[SchemeLast][2] = {
 	              /*     fg         bg     */
-	[SchemeNorm]  = { "#e09ece", "#000000" },
-	[SchemeSel]   = { "#000000", "#e09ece" },
-	[SchemeOut]   = { "#e09ece", "#332233" },
+	[SchemeNorm] = { normfgcolor, normbgcolor },
+	[SchemeSel]  = { selfgcolor,  selbgcolor  },
+	[SchemeOut]   = { normfgcolor, "#332233" },
 };
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */
 static unsigned int lines = 5;
@@ -25,3 +32,13 @@ static unsigned int lines = 5;
  * for example: " /?\"&[]"
  */
 static const char worddelimiters[] = " ";
+
+/*
+ * Xresources preferences to load at startup
+ */
+ResourcePref resources[] = {
+	{ "normfgcolor", STRING, &normfgcolor },
+	{ "normbgcolor", STRING, &normbgcolor },
+	{ "selfgcolor",  STRING, &selfgcolor },
+	{ "selbgcolor",  STRING, &selbgcolor },
+};

@@ -12,17 +12,17 @@ static const int sidemarg           = 10;       /* horizontal margin of bar, bar
 static const int barpadding         = 16;       /* bar padding, the actual visual value is half the set value */
 static const char *fonts[]          = { "0xProto Nerd Font:size=10" };
 static const char dmenufont[]       = "0xProto Nerd Font:size=10";
-static const char clr_barBdr[]      = "#e09ece"; 
-static const char clr_normBdr[]     = "#444444"; 
-static const char clr_selBdr[]      = "#e09ece"; 
+static char clr_barBdr[]      = "#e09ece"; 
+static char clr_normBdr[]     = "#444444"; 
+static char clr_selBdr[]      = "#e09ece"; 
 /* Normal */
-static const char clr_fgNorm[]      = "#e09ece";
-static const char clr_bgNorm[]      = "#000000";
+static char clr_fgNorm[]      = "#e09ece";
+static char clr_bgNorm[]      = "#000000";
 /* Selectd */
-static const char clr_fgSel[]       = "#000000";
-static const char clr_bgSel[]       = "#e09ece";
+static char clr_fgSel[]       = "#000000";
+static char clr_bgSel[]       = "#e09ece";
 
-static const char clr_unused[]      = "#000000";
+static char clr_unused[]      = "#000000";
 
 static const unsigned int transparent   = 0x00;
 static const unsigned int alphaNorm     = 0x99;
@@ -30,7 +30,7 @@ static const unsigned int alphaSel      = 0xcc;
 static const unsigned int bdrAlphaSel   = OPAQUE; // opaque is set in another file, only god knows why
 static const unsigned int bdrAlphaNorm  = OPAQUE; // opaque is set in another file, only god knows why
 
-static const char *colors[][3]      = {
+static char *colors[][3]      = {
 	/*                        fg           bg         border   */
 	[SchemeNorm]      = { "#ffffff",  clr_unused, clr_normBdr }, // white fg for security
 	[SchemeSel]       = { clr_fgNorm,   clr_bgNorm, clr_selBdr  },
@@ -91,6 +91,19 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", clr_bgNorm, "-nf", clr_fgNorm, "-sb", clr_bgSel, "-sf", clr_fgSel, NULL };
 static const char *termcmd[]  = { "st", NULL };
+
+/*
+ * Xresources preferences to load at startup
+ */
+ResourcePref resources[] = {
+    { "barbordercolor",     STRING,  &clr_barBdr }, 
+    { "normbgcolor",        STRING,  &clr_bgNorm },
+		{ "normbordercolor",    STRING,  &clr_normBdr },
+		{ "normfgcolor",        STRING,  &clr_fgNorm },
+		{ "selbgcolor",         STRING,  &clr_bgSel },
+		{ "selbordercolor",     STRING,  &clr_selBdr },
+		{ "selfgcolor",         STRING,  &clr_fgSel },
+};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
