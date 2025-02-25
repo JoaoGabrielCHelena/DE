@@ -1,5 +1,5 @@
 # My Desktop 
-![](images/screenshot.png)
+![](images/screenshot-02-25.png)
 `user` folder is equivalent to ~  
 
 Basic stuff:
@@ -13,7 +13,7 @@ Basic stuff:
 ## Requirements in my .xinitrc
 - Screen Temperature: redshift (my eyes hate blue)
 - Brightness: light (my eyes hate bright)
-- Wallpaper: xwallpaper
+- Wallpaper: hsetroot
 - Keybinds: xbindkeys
 
 ## Keybinds

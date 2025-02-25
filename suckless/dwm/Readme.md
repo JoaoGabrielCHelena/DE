@@ -3,7 +3,8 @@
 - colorbar
 - holdbar
 - alpha
-- fakefullscreeb
+- fakefullscreen
+- xresources
 
 ## other changes
 - Middle portion of the bar has been blasted from existance

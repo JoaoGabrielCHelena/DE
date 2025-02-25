@@ -1,4 +1,6 @@
 #!/bin/bash
+# Recieves the wallpaper set id on startup and creates the .Xresources
+# the file is then used by dwm and dmenu
 
 declare -A THEMES=(
   ["F"]="#22ebd0"
