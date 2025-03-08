@@ -122,6 +122,12 @@
 "bash ~/Scripts/wallBind.sh"
   Control + Shift + w
 
+"bash ~/Scripts/setPlaylist.sh"
+  Control + Shift + k
+
+"bash ~/Scripts/setSong.sh"
+  Control + Shift + m
+
 "bash ~/Scripts/powerBind.sh"
   Control + Shift + s
 
