@@ -128,6 +128,9 @@
 "bash ~/Scripts/setSong.sh"
   Control + Shift + m
 
+"bash ~/Scripts/record.sh"
+  Control + Shift + F2
+
 "bash ~/Scripts/powerBind.sh"
   Control + Shift + s
 
