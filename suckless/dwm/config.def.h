@@ -57,7 +57,6 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     iscentered   isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            0,           0,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
 };
 
 /* layout(s) */
@@ -109,42 +108,68 @@ ResourcePref resources[] = {
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-  { MODKEY,                       XK_Right,  togglerightbar, {.i = 1} },
-  { MODKEY,                       XK_Left,   togglerightbar, {.i = 0} },
-  { MODKEY,                       XK_Up,     toggletopbar,   {.i = 1} },
-  { MODKEY,                       XK_Down,   toggletopbar,   {.i = 0} },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_Return, zoom,           {0} },
-	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_space,  setlayout,      {0} },
-	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-  { MODKEY|ShiftMask,             XK_r,      self_restart,   {0} },
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-	{ !ControlMask,                 HOLDKEY,   holdbar,        {0} },
+	{ ControlMask|ShiftMask,  XK_Return,  spawn, SHCMD("dmenu_run") },
+	{ ControlMask|ShiftMask,  XK_t,       spawn, SHCMD("cd ~ && st") },
+
+	{ MODKEY,                 XK_b,       togglebar,      {0} },
+	{ MODKEY,                 XK_j,       focusstack,     {.i = +1 } },
+	{ MODKEY,                 XK_k,       focusstack,     {.i = -1 } },
+	{ MODKEY,                 XK_i,       incnmaster,     {.i = +1 } },
+	{ MODKEY,                 XK_d,       incnmaster,     {.i = -1 } },
+  { MODKEY,                 XK_Right,   togglerightbar, {.i = 1} },
+  { MODKEY,                 XK_Left,    togglerightbar, {.i = 0} },
+  { MODKEY,                 XK_Up,      toggletopbar,   {.i = 1} },
+  { MODKEY,                 XK_Down,    toggletopbar,   {.i = 0} },
+	{ MODKEY,                 XK_h,       setmfact,       {.f = -0.05} },
+	{ MODKEY,                 XK_l,       setmfact,       {.f = +0.05} },
+	{ MODKEY,                 XK_Return,  zoom,           {0} },
+	{ MODKEY,                 XK_Tab,     view,           {0} },
+	{ MODKEY|ShiftMask,       XK_c,       killclient,     {0} },
+	{ MODKEY,                 XK_t,       setlayout,      {.v = &layouts[0]} },
+	{ MODKEY,                 XK_f,       setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,                 XK_m,       setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                 XK_space,   setlayout,      {0} },
+	{ MODKEY|ShiftMask,       XK_space,   togglefloating, {0} },
+	{ MODKEY,                 XK_0,       view,           {.ui = ~0 } },
+	{ MODKEY|ShiftMask,       XK_0,       tag,            {.ui = ~0 } },
+	{ MODKEY,                 XK_comma,   focusmon,       {.i = -1 } },
+	{ MODKEY,                 XK_period,  focusmon,       {.i = +1 } },
+	{ MODKEY|ShiftMask,       XK_comma,   tagmon,         {.i = -1 } },
+	{ MODKEY|ShiftMask,       XK_period,  tagmon,         {.i = +1 } },
+	TAGKEYS(                  XK_1,                      0)
+	TAGKEYS(                  XK_2,                      1)
+	TAGKEYS(                  XK_3,                      2)
+	TAGKEYS(                  XK_4,                      3)
+	TAGKEYS(                  XK_5,                      4)
+	TAGKEYS(                  XK_6,                      5)
+  { MODKEY|ShiftMask,       XK_r,       self_restart,   {0} },
+	{ MODKEY|ShiftMask,       XK_q,       quit,           {0} },
+	{ !ControlMask,           HOLDKEY,    holdbar,        {0} },
+
+  // mpd binds
+	{ Mod4Mask, XK_Up,        spawn, SHCMD("mpc volume +5") },
+	{ Mod4Mask, XK_Down,      spawn, SHCMD("mpc volume -5") },
+	{ Mod4Mask, XK_Left,      spawn, SHCMD("mpc seek -5") },
+	{ Mod4Mask, XK_Right,     spawn, SHCMD("mpc seek +5") },
+	{ Mod4Mask, XK_BackSpace, spawn, SHCMD("mpc seek 0") },
+    // page up is on the left and down is on the right, and i prefer right for next and left for prev
+	{ Mod4Mask, XK_Next,      spawn, SHCMD("mpc next") },
+	{ Mod4Mask, XK_Prior,     spawn, SHCMD("mpc prev") },
+	{ Mod4Mask, XK_space,     spawn, SHCMD("mpc toggle") },
+	{ Mod4Mask, XK_Return,    spawn, SHCMD("mpc toggle") },
+
+  // volume binds
+	{ 0,  XF86XK_AudioLowerVolume,  spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ -5% && ~/Scripts/volBind.sh") },
+	{ 0,  XF86XK_AudioRaiseVolume,  spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ +5% && ~/Scripts/volBind.sh") },
+	{ 0,  XF86XK_AudioMute,         spawn, SHCMD("pactl set-sink-mute @DEFAULT_SINK@ toggle && ~/Scripts/volBind.sh") },
+
+  // scripts binds
+	{ ControlMask|ShiftMask,  XK_w,   spawn, SHCMD("bash ~/Scripts/wallBind.sh") },
+	{ ControlMask|ShiftMask,  XK_k,   spawn, SHCMD("bash ~/Scripts/setPlaylist.sh") },
+	{ ControlMask|ShiftMask,  XK_m,   spawn, SHCMD("bash ~/Scripts/setSong.sh") },
+	{ ControlMask|ShiftMask,  XK_s,   spawn, SHCMD("bash ~/Scripts/powerBind.sh") },
+	{ ControlMask|ShiftMask,  XK_F2,  spawn, SHCMD("bash ~/Scripts/record.sh") },
+	{ ControlMask|ShiftMask,  XK_n,   spawn, SHCMD("xclip -selection clipboard -o | xvkbd -xsendevent -file -") },
 };
 
 /* button definitions */

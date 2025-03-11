@@ -14,7 +14,6 @@ Basic stuff:
 - Screen Temperature: redshift (my eyes hate blue)
 - Brightness: light (my eyes hate bright)
 - Wallpaper: hsetroot
-- Keybinds: xbindkeys
 
 some things also assume that you have
 
@@ -25,7 +24,7 @@ some things also assume that you have
 
 Default dwm keybinds  
   
-From .xbindkeysrc:  
+other binds:  
 Ctrl + Shift + t = St  
 Ctrl + Shift + return = Dmenu (specifically dmenu_run)  
 Ctrl + Shift + s = Power settings  
