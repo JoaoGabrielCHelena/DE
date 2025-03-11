@@ -40,7 +40,7 @@ Ctrl + Shift + F2 = screen recoding menu
 I have a folder in ~ called `Backgrounds`. In it, there are folders named with an id (such as A) which contains a set of images for the wallpaper rotation. In here theres only the files with the image Ids.   
 The wallpaper theme selector ( Ctrl + Shift + w ) allows you to pick one.   
 The themes must be manually set in `~/Scripts/wallBind.sh`   
-A matching color chould also be set in `~/Scripts/generateColors.sh` which then creates a .xresources file to be read by dwm, though it only works on boot for now.   
+A matching color should also be set in `~/Scripts/generateColors.sh` which then creates a .xresources file to be read by dwm  
 Wallpaper rotates every 300 seconds.   
 
 ## Scripts

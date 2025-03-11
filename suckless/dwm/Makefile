@@ -32,7 +32,7 @@ dist: clean
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f dwm dwmbar ${DESTDIR}${PREFIX}/bin
+	cp -f dwm dwmc dwmbar ${DESTDIR}${PREFIX}/bin
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
 	chmod 755 ${DESTDIR}${PREFIX}/bin/dwmbar
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1

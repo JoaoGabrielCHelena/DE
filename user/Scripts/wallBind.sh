@@ -3,6 +3,7 @@
 # Lets tou select a folder in the ~/Backgrounds/ folder
 
 SCRIPT_PATH="$HOME/Scripts/wallLoop.sh"
+SCRIPT_PATH_2="$HOME/Scripts/generateColors.sh"
 
 # Define the list of items and their prefixes (folder name)
 declare -A THEMES
@@ -46,5 +47,5 @@ SELECTED_PREFIX=$(echo "$SELECTED_THEME" | awk '{print substr($1, 2, length($1)-
 if [[ -n "$SELECTED_PREFIX" ]]; then
   pkill -f 'wallLoop.sh' 
 
-  "$SCRIPT_PATH" "$SELECTED_PREFIX"
+  "$SCRIPT_PATH" "$SELECTED_PREFIX" & "$SCRIPT_PATH_2" "$SELECTED_PREFIX" && dwmc restart
 fi
