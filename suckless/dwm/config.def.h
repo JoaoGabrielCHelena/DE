@@ -108,8 +108,8 @@ ResourcePref resources[] = {
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ ControlMask|ShiftMask,  XK_Return,  spawn, SHCMD("dmenu_run") },
-	{ ControlMask|ShiftMask,  XK_t,       spawn, SHCMD("cd ~ && st") },
+	{ ControlMask|ShiftMask,  XK_Return,  spawn,          SHCMD("dmenu_run") },
+	{ ControlMask|ShiftMask,  XK_t,       spawn,          SHCMD("cd ~ && st") },
 
 	{ MODKEY,                 XK_b,       togglebar,      {0} },
 	{ MODKEY,                 XK_j,       focusstack,     {.i = +1 } },
@@ -195,11 +195,18 @@ viewex(const Arg *arg)
 	view(&((Arg) { .ui = 1 << arg->ui }));
 }
 
+void reload_xresources(const Arg *arg)
+{
+  load_xresources();
+  // tho i only need it for xresources this could reload any change to xresources
+  // if you do things right
+  setup();
+}
+
 /* signal definitions */
-/* signum must be greater than 0 */
-/* trigger signals using `xsetroot -name "fsignal:<signame> [<type> <value>]"` */
 static Signal signals[] = {
-	/* signum           function */
-	{ "viewex",         viewex },
-	{ "restart",        self_restart },
+	/* signum       function */
+	{ "viewex",     viewex },
+	{ "restart",    self_restart },
+	{ "xresources", reload_xresources },
 };

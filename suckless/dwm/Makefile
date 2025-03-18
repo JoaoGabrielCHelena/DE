@@ -21,6 +21,7 @@ dwm: ${OBJ}
 
 clean:
 	rm -f dwm ${OBJ} dwm-${VERSION}.tar.gz
+	rm -f config.h drw.o dwm dwm.o util.o
 
 dist: clean
 	mkdir -p dwm-${VERSION}
@@ -39,8 +40,11 @@ install: all
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
 
+dwmc:
+	cp -f dwmc ${DESTDIR}${PREFIX}/bin
+
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
-.PHONY: all clean dist install uninstall
+.PHONY: all clean dist install dwmc uninstall

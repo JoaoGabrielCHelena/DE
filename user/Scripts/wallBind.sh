@@ -47,5 +47,5 @@ SELECTED_PREFIX=$(echo "$SELECTED_THEME" | awk '{print substr($1, 2, length($1)-
 if [[ -n "$SELECTED_PREFIX" ]]; then
   pkill -f 'wallLoop.sh' 
 
-  "$SCRIPT_PATH" "$SELECTED_PREFIX" & "$SCRIPT_PATH_2" "$SELECTED_PREFIX" && dwmc restart
+  "$SCRIPT_PATH" "$SELECTED_PREFIX" & "$SCRIPT_PATH_2" "$SELECTED_PREFIX" && dwmc xresources
 fi
