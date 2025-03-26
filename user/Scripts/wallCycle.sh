@@ -32,7 +32,7 @@ if [[ $CURRENT_INDEX -gt $TOTAL_IMAGES ]]; then
   CURRENT_INDEX=1
 fi
 
-hsetroot -cover "${IMAGE_LIST[$((CURRENT_INDEX - 1))]}"
+xwallpaper --zoom "${IMAGE_LIST[$((CURRENT_INDEX - 1))]}"
 
 NEXT_INDEX=$((CURRENT_INDEX + 1))
 if [[ $NEXT_INDEX -gt $TOTAL_IMAGES ]]; then

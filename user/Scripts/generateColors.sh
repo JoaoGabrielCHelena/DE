@@ -22,6 +22,8 @@ dwm.selbordercolor: $accent
 
 dmenu.normfgcolor: $accent
 dmenu.selbgcolor: $accent
+
+Xcursor.size: 24
 EOF
 
 xrdb -merge ~/.xresources
