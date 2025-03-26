@@ -246,7 +246,6 @@ static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
 static void updatebarpos(Monitor *m);
-static void updateholdbarpos(Monitor *m);
 static void updatebars(void);
 static void updateclientlist(void);
 static int updategeom(void);
@@ -321,16 +320,20 @@ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 void
 holdbar(const Arg *arg)
 {
+	Monitor *m;
+
 	if (selmon->showbar)
 		return;
-	selmon->showbar = 2;
-	updateholdbarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh * 2 + vm);
+
+	for (m = mons; m; m = m->next)
+    m->showbar = 2;
 }
 
 void
 keyrelease(XEvent *e)
 {
+  Monitor *m;
+
 	if (XEventsQueued(dpy, QueuedAfterReading)) {
 		XEvent ne;
 		XPeekEvent(dpy, &ne);
@@ -342,23 +345,10 @@ keyrelease(XEvent *e)
 		}
 	}
 	if (e->xkey.keycode == XKeysymToKeycode(dpy, HOLDKEY) && selmon->showbar == 2) {
-		selmon->showbar = 0;
-		updateholdbarpos(selmon);
-		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh);
-		arrange(selmon);
-	}
-}
-
-void
-updateholdbarpos(Monitor *m)
-{
-	m->wy = m->my;
-	m->wh = m->mh;
-	if (m->showbar) {
-		m->by = m->topbar ? m->wy : m->wy + m->wh - bh - vm;
-		m->wy = m->topbar ? m->wy : m->wy;
-	} else {
-		m->by = -bh * 2 - vm;
+    for (m = mons; m; m = m->next) {
+      m->showbar = 0;
+      XMoveResizeWindow(dpy, m->barwin, m->wx + sm, m->by + bm, m->ww - 2 * sm, bh);
+    }
 	}
 }
 
@@ -652,7 +642,6 @@ configure(Client *c)
 void
 configurenotify(XEvent *e)
 {
-	Monitor *m;
 	XConfigureEvent *ev = &e->xconfigure;
 	int dirty;
 
@@ -664,9 +653,6 @@ configurenotify(XEvent *e)
 		if (updategeom() || dirty) {
 			drw_resize(drw, sw, bh);
 			updatebars();
-			for (m = mons; m; m = m->next) {
-				XMoveResizeWindow(dpy, m->barwin, m->wx + sm, m->by + vm, m->ww -  2 * sm, bh);
-			}
 			focus(NULL);
 			arrange(NULL);
 		}
@@ -818,14 +804,12 @@ drawbar(Monitor *m)
 
   y = (topbar == 1) ? 0 : bh + vm;
 
-  // Draw the status bar on the right if this is the selected monitor
-  if (m == selmon) {
-    drw_setscheme(drw, scheme[SchemeStatus]);
-    tw = TEXTW(stext) - lrpad;
-    width = tw + barpadding * 2;
-    drw_rounded_rect(drw, 0, y, tw + barpadding * 2, bh, 10, 0, bw);
-    drw_text(drw, 0 + barpadding, y + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
-  }
+  // Draw the status bar on the right
+  drw_setscheme(drw, scheme[SchemeStatus]);
+  tw = TEXTW(stext) - lrpad;
+  width = tw + barpadding * 2;
+  drw_rounded_rect(drw, 0, y, tw + barpadding * 2, bh, 10, 0, bw);
+  drw_text(drw, 0 + barpadding, y + barpadding, tw, bh - barpadding * 2, 0, stext, 0);
 
   // Calculate occupied and urgent tags
   for (c = m->clients; c; c = c->next) {
@@ -875,7 +859,7 @@ drawbar(Monitor *m)
     dpy,
     m->barwin,
     m->mx + sm + ((m->ww - width - sm * 2) * rightbar),
-    m->my + (topbar == 1) ? 0 + vm : m->wh - bh * 2 - barpadding - vm,
+    m->my + ( (topbar == 1) ? vm : m->wh - bh * 2 - barpadding - vm ),
     width,
     bh * 2 + barpadding
   );
@@ -1889,7 +1873,6 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = (selmon->showbar == 2 ? 1 : !selmon->showbar);
 	updatebarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh * 2 + vm);
 	arrange(selmon);
 }
 
@@ -2000,7 +1983,7 @@ updatebars(void)
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
-		m->barwin = XCreateWindow(dpy, root, m->wx + sm, m->by + bm, m->ww - 2 * sm, bh * 2 + vm, 0, depth,
+		m->barwin = XCreateWindow(dpy, root, m->wx + sm, m->by + vm, m->ww - 2 * sm, bh * 2 + vm, 0, depth,
 				InputOutput, visual,
 				CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
@@ -2012,8 +1995,6 @@ updatebars(void)
 void
 updatebarpos(Monitor *m)
 {
-	m->wy = m->my;
-	m->wh = m->mh;
 	if (m->showbar) {
 		m->wh = m->wh ;
 		m->by = m->topbar ? m->wy : m->wy + m->wh + bm;
@@ -2176,9 +2157,11 @@ updatesizehints(Client *c)
 void
 updatestatus(void)
 {
+  Monitor* m;
 	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
 		strcpy(stext, "dwm-"VERSION);
-	drawbar(selmon);
+  for(m = mons; m; m = m->next)
+    drawbar(m);
 }
 
 void
