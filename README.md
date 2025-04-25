@@ -13,7 +13,7 @@ Basic stuff:
 ## Requirements in my .xinitrc
 - Screen Temperature: redshift (my eyes hate blue)
 - Brightness: light (my eyes hate bright)
-- Wallpaper: hsetroot
+- Wallpaper: xwallpaper
 
 some things also assume that you have
 

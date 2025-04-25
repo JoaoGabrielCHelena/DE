@@ -18,7 +18,7 @@ OUTPUT_DIR="$HOME/Videos"
 OUTPUT_FILE="$OUTPUT_DIR/screen_record_$(date +%Y%m%d_%H%M%S).mp4"
 AUDIO_SOURCE=$(pactl list sources short | awk '/monitor/ {print $2; exit}')
 AUDIO_INPUT=$(pactl list sources short | awk '/echosource/ {print $2; exit}')
-FFMPEG_RECORD="ffmpeg -f x11grab -s 1920x1080 -i :0.0"
+FFMPEG_RECORD="ffmpeg -f x11grab -framerate 60 -s 1920x1080 -i :0.0"
 FFMPEG_INTERNAL="-f pulse -i $AUDIO_SOURCE"
 FFMPEG_MICROPHONE="-f pulse -i $AUDIO_INPUT"
 
@@ -40,7 +40,8 @@ if [ -n "$SELECTED" ]; then
       ;;
 
     "record | microphone and internal audio")
-      FFMPEG_CMD="$FFMPEG_RECORD $FFMPEG_MICROPHONE $FFMPEG_INTERNAL -filter_complex amerge $OUTPUT_FILE"
+      FFMPEG_CMD="$FFMPEG_RECORD $FFMPEG_MICROPHONE $FFMPEG_INTERNAL   -map 0:v -map 1:a -map 2:a -c:v libx264 -preset ultrafast -crf 18
+ -c:a aac -strict experimental -metadata:s:a:0 -metadata:s:a:1 -y $OUTPUT_FILE"
       $FFMPEG_CMD & echo $! > "$PID_FILE"
       ;;
 

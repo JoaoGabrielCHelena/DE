@@ -325,8 +325,10 @@ holdbar(const Arg *arg)
 	if (selmon->showbar)
 		return;
 
-	for (m = mons; m; m = m->next)
+	for (m = mons; m; m = m->next) {
     m->showbar = 2;
+    XMoveResizeWindow(dpy, m->barwin, m->wx + sm, m->by + bm, m->ww - 2 * sm, bh * 2 + vm);
+  }
 }
 
 void
@@ -1873,6 +1875,7 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = (selmon->showbar == 2 ? 1 : !selmon->showbar);
 	updatebarpos(selmon);
+  XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sm, selmon->by + bm, selmon->ww - 2 * sm, bh * 2 + vm);
 	arrange(selmon);
 }
 
